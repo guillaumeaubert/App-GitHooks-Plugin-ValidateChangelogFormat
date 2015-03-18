@@ -34,6 +34,38 @@ Version 1.0.0
 our $VERSION = '1.0.0';
 
 
+=head1 CONFIGURATION OPTIONS
+
+This plugin supports the following options in the C<[ValidateChangelogFormat]>
+section of your C<.githooksrc> file.
+
+	[ValidateChangelogFormat]
+	version_format_regex = /^v\d+\.\d+\.\d+$/
+	date_format_regex = /^\d{4}-\d{2}-\d{2}$/
+
+
+=head2 version_format_regex
+
+A regular expression that will be checked against the version number for each
+release listed in the change log.
+
+	version_format_regex = /^v\d+\.\d+\.\d+$/
+
+By default, this plugin allows the versioning schemes described in
+L<CPAN::Meta::Spec/Version-Formats>.
+
+
+=head2 date_format_regex
+
+A regular expression that will be checked against the date for each release
+listed in the change log.
+
+	date_format_regex = /^\d{4}-\d{2}-\d{2}$/
+
+By default, this plugin allows the date formats listed in
+L<CPAN::Changes::Spec/Date>.
+
+
 =head1 METHODS
 
 =head2 get_file_pattern()
@@ -43,6 +75,9 @@ Return a pattern to filter the files this plugin should analyze.
 	my $file_pattern = App::GitHooks::Plugin::ValidateChangelogFormat->get_file_pattern(
 		app => $app,
 	);
+
+By default, this catches files named changes or changelog, with an optional
+extension of .md or .pod. The name of the files is not case sensitive.
 
 =cut
 
@@ -84,10 +119,20 @@ sub run_pre_commit_file
 	my $git_action = delete( $args{'git_action'} );
 	my $app = delete( $args{'app'} );
 	my $repository = $app->get_repository();
+	my $config = $app->get_config();
 
 	# Ignore deleted files.
 	return $PLUGIN_RETURN_SKIPPED
 		if $git_action eq 'D';
+
+	# Determine the required date format.
+	my $date_format_regex = $config->get_regex( 'ValidateChangelogFormat', 'date_format_regex' );
+	$date_format_regex = defined( $date_format_regex )
+		? qr/^$date_format_regex$/
+		: qr/^(?:${CPAN::Changes::W3CDTF_REGEX}|${CPAN::Changes::UNKNOWN_VALS})$/;
+
+	# Determine the required version format.
+	my $version_format_regex = $config->get_regex( 'ValidateChangelogFormat', 'version_format_regex' );
 
 	my $changes =
 	try
@@ -123,8 +168,7 @@ sub run_pre_commit_file
 				if !defined( $date ) || ( $date eq '' );
 
 			die "date '$date' is not in the recommended format.\n"
-				if $date !~ m/^${CPAN::Changes::W3CDTF_REGEX}$/x && $date !~ m/^${CPAN::Changes::UNKNOWN_VALS}$/x;
-
+				if $date !~ $date_format_regex;
 		}
 		catch
 		{
@@ -139,8 +183,16 @@ sub run_pre_commit_file
 			die "the version number is missing.\n"
 				if $version eq '';
 
-			die "version '$version' is not a valid version number.\n"
-				if !version::is_lax($version);
+			if ( defined( $version_format_regex ) )
+			{
+				die "version '$version' is not a valid version number.\n"
+					if $version !~ qr/^$version_format_regex$/;
+			}
+			else
+			{
+				die "version '$version' is not a valid version number.\n"
+					if !version::is_lax($version);
+			}
 		}
 		catch
 		{

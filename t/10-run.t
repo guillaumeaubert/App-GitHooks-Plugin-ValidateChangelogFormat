@@ -44,6 +44,56 @@ my $tests =
 		},
 		expected => qr/\Qx The changelog format matches CPAN::Changes::Spec.\E/,
 	},
+	# Test custom version numbers.
+	{
+		name     => 'Fail version format specification in githooksrc.',
+		config   => "[ValidateChangelogFormat]\n"
+			. 'version_format_regex = /^v\d+$/' . "\n",
+		files    =>
+		{
+			'Changes' => "Release for test package.\n"
+				. "\n"
+				. "1.2.3  2014-01-01\n",
+		},
+		expected => qr|\QRelease 1/1: version '1.2.3' is not a valid version number\E|,
+	},
+	{
+		name     => 'Pass version format specification in githooksrc.',
+		config   => "[ValidateChangelogFormat]\n"
+			. 'version_format_regex = /^v\d+$/' . "\n",
+		files    =>
+		{
+			'Changes' => "Release for test package.\n"
+				. "\n"
+				. "v1  2014-01-01\n",
+		},
+		expected => qr/o The changelog format matches CPAN::Changes::Spec/,
+	},
+	# Test custom date formats.
+	{
+		name     => 'Fail date format specification in githooksrc.',
+		config   => "[ValidateChangelogFormat]\n"
+			. 'date_format_regex = /^\d{4}-\d{2}-\d{2}$/' . "\n",
+		files    =>
+		{
+			'Changes' => "Release for test package.\n"
+				. "\n"
+				. "v1.2.3  2014-01-01 01:00\n",
+		},
+		expected => qr|\QRelease 1/1: date '2014-01-01T01:00Z' is not in the recommended format\E|,
+	},
+	{
+		name     => 'Pass date format specification in githooksrc.',
+		config   => "[ValidateChangelogFormat]\n"
+			. 'date_format_regex = /^\d{4}-\d{2}-\d{2}$/' . "\n",
+		files    =>
+		{
+			'Changes' => "Release for test package.\n"
+				. "\n"
+				. "v1.2.3  2014-01-01\n",
+		},
+		expected => qr/o The changelog format matches CPAN::Changes::Spec/,
+	},
 ];
 
 # Bail out if Git isn't available.
