@@ -40,15 +40,15 @@ our $VERSION = '1.0.0';
 
 Return a pattern to filter the files this plugin should analyze.
 
-    my $file_pattern = App::GitHooks::Plugin::ValidateChangelogFormat->get_file_pattern(
-        app => $app,
-    );
+	my $file_pattern = App::GitHooks::Plugin::ValidateChangelogFormat->get_file_pattern(
+		app => $app,
+	);
 
 =cut
 
 sub get_file_pattern
 {
-    return qr/^(?:changes|changelog)(?:\.(?:md|pod))?$/ix;
+	return qr/^(?:changes|changelog)(?:\.(?:md|pod))?$/ix;
 }
 
 
@@ -58,20 +58,20 @@ Return a description of the check performed on files by the plugin and that
 will be displayed to the user, if applicable, along with an indication of the
 success or failure of the plugin.
 
-    my $description = App::GitHooks::Plugin::ValidateChangelogFormat->get_file_check_description();
+	my $description = App::GitHooks::Plugin::ValidateChangelogFormat->get_file_check_description();
 
 =cut
 
 sub get_file_check_description
 {
-    return 'The changelog format matches CPAN::Changes::Spec.';
+	return 'The changelog format matches CPAN::Changes::Spec.';
 }
 
 =head2 run_pre_commit_file()
 
 Code to execute for each file as part of the pre-commit hook.
 
-    my $success = App::GitHooks::Plugin::ValidateChangelogFormat->run_pre_commit_file();
+	my $success = App::GitHooks::Plugin::ValidateChangelogFormat->run_pre_commit_file();
 
 The code in this subroutine is mostly adapted from L<Test::CPAN::Changes>.
 
@@ -79,72 +79,72 @@ The code in this subroutine is mostly adapted from L<Test::CPAN::Changes>.
 
 sub run_pre_commit_file
 {
-    my ( $class, %args ) = @_;
-    my $file = delete( $args{'file'} );
-    my $git_action = delete( $args{'git_action'} );
-    my $app = delete( $args{'app'} );
-    my $repository = $app->get_repository();
+	my ( $class, %args ) = @_;
+	my $file = delete( $args{'file'} );
+	my $git_action = delete( $args{'git_action'} );
+	my $app = delete( $args{'app'} );
+	my $repository = $app->get_repository();
 
-    # Ignore deleted files.
-    return $PLUGIN_RETURN_SKIPPED
-        if $git_action eq 'D';
+	# Ignore deleted files.
+	return $PLUGIN_RETURN_SKIPPED
+		if $git_action eq 'D';
 
-    my $changes =
-    try {
-        return CPAN::Changes->load( $repository->work_tree() . '/' . $file );
-    }
-    catch {
-        die "Unable to parse the change log\n";
-    };
+	my $changes =
+	try {
+		return CPAN::Changes->load( $repository->work_tree() . '/' . $file );
+	}
+	catch {
+		die "Unable to parse the change log\n";
+	};
 
-    my @releases = $changes->releases();
+	my @releases = $changes->releases();
 
-    die "The change log does not contain any releases\n"
-        if scalar( @releases ) == 0;
+	die "The change log does not contain any releases\n"
+		if scalar( @releases ) == 0;
 
-    my @errors = ();
-    my $count = 0;
-    foreach my $release ( @releases ) {
-        $count++;
-        my $error_prefix = sprintf(
-            "Release %s/%s",
-            $count,
-            scalar( @releases ),
-        );
+	my @errors = ();
+	my $count = 0;
+	foreach my $release ( @releases ) {
+		$count++;
+		my $error_prefix = sprintf(
+			"Release %s/%s",
+			$count,
+			scalar( @releases ),
+		);
 
-        try {
-            my $date = $release->date();
+		try {
+			my $date = $release->date();
 
-            die "the release date is missing.\n"
-                if !defined( $date ) || ( $date eq '' );
+			die "the release date is missing.\n"
+				if !defined( $date ) || ( $date eq '' );
 
-            die "date '$date' is not in the recommended format.\n"
-                if $date !~ m/^${CPAN::Changes::W3CDTF_REGEX}$/x && $date !~ m/^${CPAN::Changes::UNKNOWN_VALS}$/x;
+			die "date '$date' is not in the recommended format.\n"
+				if $date !~ m/^${CPAN::Changes::W3CDTF_REGEX}$/x && $date !~ m/^${CPAN::Changes::UNKNOWN_VALS}$/x;
 
-        }
-        catch {
-            push( @errors, "$error_prefix: $_" );
-        };
+		}
+		catch {
+			push( @errors, "$error_prefix: $_" );
+		};
 
-        try {
-            # Strip off -TRIAL before testing.
-            ( my $version = $release->version() ) =~ s/-TRIAL$//;
+		try {
+			# Strip off -TRIAL before testing.
+			( my $version = $release->version() ) =~ s/-TRIAL$//;
 
-            die "the version number is missing.\n"
-                if $version eq '';
+			die "the version number is missing.\n"
+				if $version eq '';
 
-            die "version '$version' is not a valid version number.\n"
-                if !version::is_lax($version);
-        }
-        catch {
-            push( @errors, "$error_prefix: $_" );
-        };
-    }
+			die "version '$version' is not a valid version number.\n"
+				if !version::is_lax($version);
+		}
+		catch {
+			push( @errors, "$error_prefix: $_" );
+		};
+	}
 
-    die join( '', @errors ) . "\n"
-        if scalar( @errors ) != 0;
+	die join( '', @errors ) . "\n"
+		if scalar( @errors ) != 0;
 
-    return $PLUGIN_RETURN_PASSED;
+	return $PLUGIN_RETURN_PASSED;
 }
 
 
