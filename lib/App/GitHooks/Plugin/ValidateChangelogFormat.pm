@@ -90,10 +90,12 @@ sub run_pre_commit_file
 		if $git_action eq 'D';
 
 	my $changes =
-	try {
+	try
+	{
 		return CPAN::Changes->load( $repository->work_tree() . '/' . $file );
 	}
-	catch {
+	catch
+	{
 		die "Unable to parse the change log\n";
 	};
 
@@ -104,7 +106,8 @@ sub run_pre_commit_file
 
 	my @errors = ();
 	my $count = 0;
-	foreach my $release ( @releases ) {
+	foreach my $release ( @releases )
+	{
 		$count++;
 		my $error_prefix = sprintf(
 			"Release %s/%s",
@@ -112,7 +115,8 @@ sub run_pre_commit_file
 			scalar( @releases ),
 		);
 
-		try {
+		try
+		{
 			my $date = $release->date();
 
 			die "the release date is missing.\n"
@@ -122,11 +126,13 @@ sub run_pre_commit_file
 				if $date !~ m/^${CPAN::Changes::W3CDTF_REGEX}$/x && $date !~ m/^${CPAN::Changes::UNKNOWN_VALS}$/x;
 
 		}
-		catch {
+		catch
+		{
 			push( @errors, "$error_prefix: $_" );
 		};
 
-		try {
+		try
+		{
 			# Strip off -TRIAL before testing.
 			( my $version = $release->version() ) =~ s/-TRIAL$//;
 
@@ -136,7 +142,8 @@ sub run_pre_commit_file
 			die "version '$version' is not a valid version number.\n"
 				if !version::is_lax($version);
 		}
-		catch {
+		catch
+		{
 			push( @errors, "$error_prefix: $_" );
 		};
 	}
