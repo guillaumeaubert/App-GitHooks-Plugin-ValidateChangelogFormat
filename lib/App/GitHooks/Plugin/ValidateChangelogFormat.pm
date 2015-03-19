@@ -134,6 +134,7 @@ sub run_pre_commit_file
 	# Determine the required version format.
 	my $version_format_regex = $config->get_regex( 'ValidateChangelogFormat', 'version_format_regex' );
 
+	# Parse the changelog file.
 	my $changes =
 	try
 	{
@@ -144,8 +145,8 @@ sub run_pre_commit_file
 		die "Unable to parse the change log\n";
 	};
 
+	# Verify that the changelog contains releases.
 	my @releases = $changes->releases();
-
 	die "The change log does not contain any releases\n"
 		if scalar( @releases ) == 0;
 
@@ -153,6 +154,7 @@ sub run_pre_commit_file
 	my $count = 0;
 	foreach my $release ( @releases )
 	{
+		# Prefix to identify which release has issues in the error messages.
 		$count++;
 		my $error_prefix = sprintf(
 			"Release %s/%s",
@@ -201,6 +203,7 @@ sub run_pre_commit_file
 		};
 	}
 
+	# Raise an exception with all the errors found, if any.
 	die join( '', @errors ) . "\n"
 		if scalar( @errors ) != 0;
 
