@@ -179,8 +179,7 @@ sub run_pre_commit_file
 		# Validate the release version.
 		try
 		{
-			# Strip off -TRIAL before testing.
-			( my $version = $release->version() ) =~ s/-TRIAL$//;
+			my $version = $release->version();
 
 			die "the version number is missing.\n"
 				if $version eq '';
