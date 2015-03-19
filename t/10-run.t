@@ -53,7 +53,8 @@ my $tests =
 		{
 			'Changes' => "Release for test package.\n"
 				. "\n"
-				. "1.2.3  2014-01-01\n",
+				. "1.2.3  2014-01-01\n"
+				. "  - Test feature.\n",
 		},
 		expected => qr|\QRelease 1/1: version '1.2.3' is not a valid version number\E|,
 	},
@@ -65,7 +66,8 @@ my $tests =
 		{
 			'Changes' => "Release for test package.\n"
 				. "\n"
-				. "v1  2014-01-01\n",
+				. "v1  2014-01-01\n"
+				. "  - Test feature.\n",
 		},
 		expected => qr/o The changelog format matches CPAN::Changes::Spec/,
 	},
@@ -78,7 +80,8 @@ my $tests =
 		{
 			'Changes' => "Release for test package.\n"
 				. "\n"
-				. "v1.2.3  2014-01-01 01:00\n",
+				. "v1.2.3  2014-01-01 01:00\n"
+				. "  - Test feature.\n",
 		},
 		expected => qr|\QRelease 1/1: date '2014-01-01T01:00Z' is not in the recommended format\E|,
 	},
@@ -90,9 +93,21 @@ my $tests =
 		{
 			'Changes' => "Release for test package.\n"
 				. "\n"
-				. "v1.2.3  2014-01-01\n",
+				. "v1.2.3  2014-01-01\n"
+				. "  - Test feature.\n",
 		},
 		expected => qr/o The changelog format matches CPAN::Changes::Spec/,
+	},
+	# Make sure that releases contain at least one change.
+	{
+		name     => 'A release must contain at least one change.',
+		files    =>
+		{
+			'Changes' => "Release for test package.\n"
+				. "\n"
+				. "v1.2.3  2014-01-01\n"
+		},
+		expected => qr|\QRelease 1/1: the release does not contain a description of changes\E|,
 	},
 ];
 

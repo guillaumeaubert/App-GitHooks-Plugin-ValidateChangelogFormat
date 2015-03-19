@@ -201,6 +201,19 @@ sub run_pre_commit_file
 		{
 			push( @errors, "$error_prefix: $_" );
 		};
+
+		# Verify that a list of changes is present.
+		try
+		{
+			my $changes = $release->changes();
+
+			die "the release does not contain a description of changes.\n"
+				if scalar( keys %$changes ) == 0;
+		}
+		catch
+		{
+			push( @errors, "$error_prefix: $_" );
+		};
 	}
 
 	# Raise an exception with all the errors found, if any.
