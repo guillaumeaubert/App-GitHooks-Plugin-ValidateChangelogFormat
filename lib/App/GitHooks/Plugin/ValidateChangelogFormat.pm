@@ -160,6 +160,7 @@ sub run_pre_commit_file
 			scalar( @releases ),
 		);
 
+		# Validate the release date.
 		try
 		{
 			my $date = $release->date();
@@ -175,6 +176,7 @@ sub run_pre_commit_file
 			push( @errors, "$error_prefix: $_" );
 		};
 
+		# Validate the release version.
 		try
 		{
 			# Strip off -TRIAL before testing.
