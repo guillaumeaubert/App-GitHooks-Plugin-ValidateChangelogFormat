@@ -13,7 +13,7 @@ WriteMakefile
   'VERSION_FROM' => 'lib/App/GitHooks/Plugin/ValidateChangelogFormat.pm',
   'PREREQ_PM' => {
                    'Try::Tiny' => 0,
-                   'Test::Git' => 0,
+                   'Test::Requires::Git' => 1.005,
                    'Test::Exception' => 0,
                    'Capture::Tiny' => 0,
                    'Test::FailWarnings' => 0,
