@@ -3,27 +3,27 @@ require 5.010;
 use ExtUtils::MakeMaker;
 WriteMakefile
 (
+  'PREREQ_PM' => {
+                   'Try::Tiny' => 0,
+                   'Test::Exception' => 0,
+                   'version' => 0,
+                   'App::GitHooks::Constants' => 0,
+                   'CPAN::Changes' => 0,
+                   'Test::Requires::Git' => '1.005',
+                   'App::GitHooks::Test' => 0,
+                   'Test::Type' => 0,
+                   'App::GitHooks::Plugin' => 0,
+                   'Test::FailWarnings' => 0,
+                   'Capture::Tiny' => 0,
+                   'Test::More' => 0
+                 },
+  'PL_FILES' => {},
   'test' => {
               'TESTS' => 't/*.t'
             },
-  'PL_FILES' => {},
-  'INSTALLDIRS' => 'site',
-  'NAME' => 'App::GitHooks::Plugin::ValidateChangelogFormat',
-  'EXE_FILES' => [],
   'VERSION_FROM' => 'lib/App/GitHooks/Plugin/ValidateChangelogFormat.pm',
-  'PREREQ_PM' => {
-                   'Try::Tiny' => 0,
-                   'Test::Requires::Git' => 1.005,
-                   'Test::Exception' => 0,
-                   'Capture::Tiny' => 0,
-                   'Test::FailWarnings' => 0,
-                   'version' => 0,
-                   'App::GitHooks::Constants' => 0,
-                   'App::GitHooks::Test' => 0,
-                   'Test::More' => 0,
-                   'CPAN::Changes' => 0,
-                   'App::GitHooks::Plugin' => 0,
-                   'Test::Type' => 0
-                 }
+  'INSTALLDIRS' => 'site',
+  'EXE_FILES' => [],
+  'NAME' => 'App::GitHooks::Plugin::ValidateChangelogFormat'
 )
 ;
