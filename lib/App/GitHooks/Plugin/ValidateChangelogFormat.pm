@@ -129,7 +129,7 @@ sub run_pre_commit_file
 	my $date_format_regex = $config->get_regex( 'ValidateChangelogFormat', 'date_format_regex' );
 	$date_format_regex = defined( $date_format_regex )
 		? qr/^$date_format_regex$/
-		: qr/^(?:${CPAN::Changes::W3CDTF_REGEX}|${CPAN::Changes::UNKNOWN_VALS})$/;
+		: qr/^(?:${CPAN::Changes::W3CDTF_REGEX}|${CPAN::Changes::UNKNOWN_VALS})$/x;
 
 	# Determine the required version format.
 	my $version_format_regex = $config->get_regex( 'ValidateChangelogFormat', 'version_format_regex' );
@@ -189,7 +189,7 @@ sub run_pre_commit_file
 			if ( defined( $version_format_regex ) )
 			{
 				die "version '$version' is not a valid version number.\n"
-					if $version !~ qr/^$version_format_regex$/;
+					if $version !~ qr/^$version_format_regex$/x;
 			}
 			else
 			{
@@ -205,10 +205,10 @@ sub run_pre_commit_file
 		# Verify that a list of changes is present.
 		try
 		{
-			my $changes = $release->changes();
+			my $description = $release->changes();
 
 			die "the release does not contain a description of changes.\n"
-				if scalar( keys %$changes ) == 0;
+				if scalar( keys %$description ) == 0;
 		}
 		catch
 		{
